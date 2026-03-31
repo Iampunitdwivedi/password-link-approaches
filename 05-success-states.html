@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 — Success / Toast States</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --green-border: #BBF7D0;
+    --green-text: #166534;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --amber-border: #FDE68A;
+    --amber-text: #92400E;
+    --red: #DC2626;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .screen-label {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+  .screen-num {
+    background: var(--text-1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen-title {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .screen-title span { color: var(--text-3); font-weight: 400; }
+
+  /* Toast container */
+  .toast-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* Toast label */
+  .toast-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: -12px;
+  }
+
+  /* Base toast */
+  .toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+    animation: toastIn 0.35s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .toast-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .toast-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .toast-message {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+  .toast-sub {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .toast-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    margin-top: -2px;
+  }
+  .toast-close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Toast action button */
+  .toast-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font);
+    border: none;
+    transition: all 0.15s;
+  }
+  .toast-action svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* Progress bar at bottom of toast */
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    border-radius: 0 0 0 var(--radius);
+    animation: shrink 5s linear forwards;
+  }
+  @keyframes shrink {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  /* Green toast — password created */
+  .toast-green {
+    background: var(--surface);
+    border: 1px solid var(--green-border);
+  }
+  .toast-green .toast-icon {
+    background: var(--green-bg);
+  }
+  .toast-green .toast-icon svg {
+    color: var(--green);
+  }
+  .toast-green .toast-message {
+    color: var(--text-1);
+  }
+  .toast-green .toast-sub {
+    color: var(--text-3);
+  }
+  .toast-green .toast-close {
+    color: var(--text-3);
+  }
+  .toast-green .toast-close:hover {
+    background: var(--green-bg);
+    color: var(--green-text);
+  }
+  .toast-green .toast-action {
+    background: var(--green);
+    color: #fff;
+  }
+  .toast-green .toast-action:hover {
+    background: #15803D;
+  }
+  .toast-green .toast-progress {
+    background: var(--green);
+  }
+
+  /* Neutral toast — link copied */
+  .toast-neutral {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .toast-neutral .toast-icon {
+    background: var(--purple-bg);
+  }
+  .toast-neutral .toast-icon svg {
+    color: var(--purple);
+  }
+  .toast-neutral .toast-message {
+    color: var(--text-1);
+  }
+  .toast-neutral .toast-sub {
+    color: var(--text-3);
+  }
+  .toast-neutral .toast-close {
+    color: var(--text-3);
+  }
+  .toast-neutral .toast-close:hover {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+  .toast-neutral .toast-progress {
+    background: var(--purple);
+  }
+
+  /* Amber toast — password deleted */
+  .toast-amber {
+    background: var(--surface);
+    border: 1px solid var(--amber-border);
+  }
+  .toast-amber .toast-icon {
+    background: var(--amber-bg);
+  }
+  .toast-amber .toast-icon svg {
+    color: var(--amber);
+  }
+  .toast-amber .toast-message {
+    color: var(--text-1);
+  }
+  .toast-amber .toast-sub {
+    color: var(--text-3);
+  }
+  .toast-amber .toast-close {
+    color: var(--text-3);
+  }
+  .toast-amber .toast-close:hover {
+    background: var(--amber-bg);
+    color: var(--amber-text);
+  }
+  .toast-amber .toast-progress {
+    background: var(--amber);
+  }
+
+  /* Divider between toasts */
+  .toast-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .toast-divider::before,
+  .toast-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .toast-divider span {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-label">
+  <div class="screen-num">05</div>
+  <div class="screen-title">Toast <span>— Success Notifications</span></div>
+</div>
+
+<div class="toast-showcase">
+
+  <!-- Divider label -->
+  <div class="toast-divider"><span>After creating password</span></div>
+
+  <!-- Toast 1: Password created -->
+  <div class="toast toast-green" style="animation-delay: 0s">
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">Password created — link is ready to share</div>
+      <div class="toast-sub">Share the link and password with anyone outside your team.</div>
+      <button class="toast-action">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copy link
+      </button>
+    </div>
+    <button class="toast-close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="toast-progress"></div>
+  </div>
+
+  <!-- Divider label -->
+  <div class="toast-divider"><span>After copying link</span></div>
+
+  <!-- Toast 2: Link copied -->
+  <div class="toast toast-neutral" style="animation-delay: 0.1s">
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">Link copied to clipboard</div>
+      <div class="toast-sub">Paste it anywhere to share the meeting.</div>
+    </div>
+    <button class="toast-close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="toast-progress" style="animation-delay: 0.1s"></div>
+  </div>
+
+  <!-- Divider label -->
+  <div class="toast-divider"><span>After deleting password</span></div>
+
+  <!-- Toast 3: Password deleted -->
+  <div class="toast toast-amber" style="animation-delay: 0.2s">
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">Password deleted — link has been revoked</div>
+      <div class="toast-sub">Anyone with the old link will no longer have access.</div>
+    </div>
+    <button class="toast-close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="toast-progress" style="animation-delay: 0.2s"></div>
+  </div>
+
+</div>
+
+</body>
+</html>

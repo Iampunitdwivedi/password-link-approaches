@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 — Delete Confirmation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --green-border: #BBF7D0;
+    --green-text: #166534;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --red: #DC2626;
+    --red-bg: #FEF2F2;
+    --red-border: #FECACA;
+    --red-light: #F87171;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .screen-label {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+  }
+  .screen-num {
+    background: var(--text-1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen-title {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .screen-title span { color: var(--text-3); font-weight: 400; }
+
+  /* Behind modal — the password tab, blurred */
+  .behind-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    filter: blur(3px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .ff-modal-bg {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .ff-modal-bg-header {
+    padding: 22px 24px 0;
+  }
+  .ff-modal-bg-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .ff-modal-bg-sub {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 16px;
+  }
+  .ff-modal-bg-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .ff-modal-bg-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .ff-modal-bg-tab.active {
+    color: var(--text-1);
+    font-weight: 500;
+    border-bottom: 2px solid var(--text-1);
+  }
+  .ff-modal-bg-body {
+    padding: 20px 24px 24px;
+  }
+  .ff-bg-banner {
+    padding: 10px 14px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--green-text);
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ff-bg-field {
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    margin-bottom: 12px;
+  }
+
+  /* Overlay backdrop */
+  .dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 5;
+  }
+
+  /* Confirmation dialog */
+  .confirm-dialog {
+    position: relative;
+    z-index: 10;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 420px;
+    padding: 28px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+    animation: dialogIn 0.25s ease;
+  }
+  @keyframes dialogIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* Warning icon */
+  .warn-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--red-bg);
+    border: 1.5px solid var(--red-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .warn-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--red);
+  }
+
+  .confirm-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .confirm-body {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  /* Link being revoked */
+  .revoke-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+  }
+  .revoke-link-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--red-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .revoke-link-icon svg {
+    width: 16px;
+    height: 16px;
+    color: var(--red);
+  }
+  .revoke-link-label {
+    font-size: 10px;
+    color: var(--text-3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 1px;
+  }
+  .revoke-link-url {
+    font-size: 12px;
+    color: var(--text-2);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 0.2px;
+    text-decoration: line-through;
+    text-decoration-color: var(--red-light);
+  }
+
+  /* Buttons */
+  .confirm-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .btn-cancel {
+    height: 40px;
+    padding: 0 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-1);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .btn-cancel:hover {
+    background: var(--surface-2);
+    border-color: var(--border-hover);
+  }
+  .btn-delete {
+    height: 40px;
+    padding: 0 20px;
+    background: var(--red);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+  }
+  .btn-delete:hover {
+    background: #B91C1C;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
+  .btn-delete svg {
+    width: 15px;
+    height: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-label">
+  <div class="screen-num">04</div>
+  <div class="screen-title">Delete <span>— Confirmation Dialog</span></div>
+</div>
+
+<!-- Behind: blurred password tab -->
+<div class="behind-modal">
+  <div class="ff-modal-bg">
+    <div class="ff-modal-bg-header">
+      <div class="ff-modal-bg-title">Share meeting</div>
+      <div class="ff-modal-bg-sub">Product Roadmap Review — Mar 28, 2026</div>
+    </div>
+    <div class="ff-modal-bg-tabs">
+      <div class="ff-modal-bg-tab">Invite</div>
+      <div class="ff-modal-bg-tab active">Password</div>
+    </div>
+    <div class="ff-modal-bg-body">
+      <div class="ff-bg-banner">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>
+        Password protection is active
+      </div>
+      <div class="ff-bg-field"></div>
+      <div class="ff-bg-field"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div class="dialog-backdrop"></div>
+
+<!-- Confirmation dialog -->
+<div class="confirm-dialog">
+  <div class="warn-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+  </div>
+
+  <div class="confirm-title">Delete password and revoke link?</div>
+  <div class="confirm-body">This will permanently invalidate the current password-protected link. Anyone who has this link will immediately lose access to this meeting. This action cannot be undone.</div>
+
+  <div class="revoke-link">
+    <div class="revoke-link-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        <line x1="4" y1="4" x2="20" y2="20" stroke-width="1.5" opacity="0.5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="revoke-link-label">Link being revoked</div>
+      <div class="revoke-link-url">https://app.fireflies.ai/s/p/abc123xY9...</div>
+    </div>
+  </div>
+
+  <div class="confirm-actions">
+    <button class="btn-cancel">Cancel</button>
+    <button class="btn-delete">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+      Delete and revoke
+    </button>
+  </div>
+</div>
+
+</body>
+</html>

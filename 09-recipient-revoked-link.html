@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 — Recipient Revoked Link</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --amber-border: #FDE68A;
+    --amber-text: #92400E;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screen-label {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+  .screen-num {
+    background: var(--text-1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen-title {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+  .screen-title span { color: var(--text-3); font-weight: 400; }
+
+  .logo-header {
+    padding: 40px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 48px;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-mark svg { width: 20px; height: 20px; color: #fff; }
+  .logo-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: -0.4px;
+  }
+
+  /* Card */
+  .revoked-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+    text-align: center;
+    animation: cardIn 0.3s ease;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Broken link icon */
+  .broken-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: var(--amber-bg);
+    border: 1.5px solid var(--amber-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .broken-icon svg {
+    width: 32px;
+    height: 32px;
+    color: var(--amber);
+  }
+
+  .revoked-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .revoked-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.65;
+    max-width: 320px;
+    margin: 0 auto 28px;
+  }
+
+  /* CTA button */
+  .btn-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 24px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-1);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .btn-go:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: var(--purple-bg);
+  }
+  .btn-go svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Subtle divider */
+  .card-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0 20px;
+  }
+
+  .card-note {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+  .card-note a {
+    color: var(--purple);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card-note a:hover {
+    text-decoration: underline;
+  }
+
+  .page-footer {
+    margin-top: auto;
+    padding: 32px 0;
+    font-size: 11px;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .page-footer a { color: var(--text-3); text-decoration: none; }
+  .page-footer a:hover { color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<div class="screen-label">
+  <div class="screen-num">09</div>
+  <div class="screen-title">Recipient <span>— Revoked Link</span></div>
+</div>
+
+<!-- Logo -->
+<div class="logo-header">
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+      <path d="M2 17l10 5 10-5"/>
+      <path d="M2 12l10 5 10-5"/>
+    </svg>
+  </div>
+  <div class="logo-text">Fireflies.ai</div>
+</div>
+
+<!-- Card -->
+<div class="revoked-card">
+  <!-- Broken link icon -->
+  <div class="broken-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Broken chain links -->
+      <path d="M15 7h3a5 5 0 0 1 0 10h-3"/>
+      <path d="M9 17H6a5 5 0 0 1 0-10h3"/>
+      <!-- Break line -->
+      <line x1="8" y1="12" x2="10" y2="12"/>
+      <line x1="14" y1="12" x2="16" y2="12"/>
+      <!-- Slash through -->
+      <line x1="18" y1="6" x2="6" y2="18" stroke-width="1.5" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="revoked-title">This link is no longer active</div>
+  <div class="revoked-desc">The meeting owner has revoked this password-protected link. If you need access, please ask them for a new link.</div>
+
+  <button class="btn-go" onclick="window.open('https://fireflies.ai', '_blank')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15 3 21 3 21 9"/>
+      <line x1="10" y1="14" x2="21" y2="3"/>
+    </svg>
+    Go to Fireflies
+  </button>
+
+  <div class="card-divider"></div>
+
+  <div class="card-note">
+    New to Fireflies? <a href="#">Sign up free</a> to record, transcribe, and search your meetings with AI.
+  </div>
+</div>
+
+<!-- Page footer -->
+<div class="page-footer">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+    <path d="M2 17l10 5 10-5"/>
+    <path d="M2 12l10 5 10-5"/>
+  </svg>
+  Powered by <a href="#">Fireflies.ai</a>
+</div>
+
+</body>
+</html>
