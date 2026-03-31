@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password-Protected Link — Design Exploration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --red: #DC2626;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .page-header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .page-meta {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .page-meta span { 
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Navigation pills */
+  .approach-nav {
+    max-width: 960px;
+    margin: 24px auto 0;
+    padding: 0 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .nav-pill {
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 400;
+    font-family: var(--font);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .nav-pill:hover {
+    border-color: var(--border-hover);
+    color: var(--text-1);
+  }
+  .nav-pill.active {
+    background: var(--text-1);
+    border-color: var(--text-1);
+    color: #fff;
+    font-weight: 500;
+  }
+  .nav-pill .pill-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .nav-pill.active .pill-num {
+    background: rgba(255,255,255,0.2);
+  }
+  .nav-pill:not(.active) .pill-num {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+
+  /* Content area */
+  .content-area {
+    max-width: 960px;
+    margin: 24px auto 80px;
+    padding: 0 32px;
+  }
+
+  /* Approach card */
+  .approach-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp 0.25s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .approach-header {
+    padding: 28px 32px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .approach-num {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--purple);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .approach-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
+    margin-bottom: 8px;
+  }
+  .approach-desc {
+    font-size: 14px;
+    color: var(--text-2);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  .approach-ref {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .approach-ref strong {
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  /* Tags */
+  .tag-row { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 400;
+  }
+  .tag-green { background: var(--green-bg); color: var(--green); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple-text); }
+
+  /* Modal showcase */
+  .modal-showcase {
+    padding: 40px 32px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 480px;
+  }
+
+  /* The Fireflies modal */
+  .ff-modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 460px;
+    padding: 22px 24px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .ff-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    color: var(--text-3);
+    cursor: default;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+  .ff-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin-bottom: 2px;
+    padding-right: 28px;
+    letter-spacing: -0.2px;
+  }
+  .ff-subtitle {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+
+  /* Tabs */
+  .ff-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+    gap: 0;
+  }
+  .ff-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-family: var(--font);
+    color: var(--text-3);
+    cursor: default;
+    position: relative;
+    border: none;
+    background: none;
+    font-weight: 400;
+  }
+  .ff-tab.active {
+    color: var(--text-1);
+    font-weight: 500;
+  }
+  .ff-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-1);
+    border-radius: 1px 1px 0 0;
+  }
+  .ff-tab .badge-new {
+    font-size: 9px;
+    background: var(--purple);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-weight: 600;
+    vertical-align: middle;
+    letter-spacing: 0.3px;
+  }
+
+  /* Invite row */
+  .ff-invite-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .ff-input {
+    flex: 1;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--text-3);
+    background: var(--surface);
+    font-family: var(--font);
+  }
+  .ff-btn-primary {
+    height: 36px;
+    padding: 0 16px;
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: default;
+    font-family: var(--font);
+    white-space: nowrap;
+  }
+  .ff-btn-outline {
+    height: 34px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-1);
+    cursor: default;
+    font-family: var(--font);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .ff-btn-ghost {
+    height: 32px;
+    padding: 0 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    color: var(--text-2);
+    cursor: default;
+    font-family: var(--font);
+  }
+
+  /* Section label */
+  .ff-label {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  /* Teammate row */
+  .ff-teammate {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .ff-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .ff-teammate-info { flex: 1; }
+  .ff-teammate-name { font-size: 13px; font-weight: 500; }
+  .ff-teammate-email { font-size: 11px; color: var(--text-3); }
+  .ff-role { font-size: 11px; color: var(--text-3); }
+
+  /* Access row */
+  .ff-access {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .ff-access-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ff-access-label { font-size: 13px; font-weight: 500; }
+  .ff-access-desc { font-size: 11px; color: var(--text-3); }
+  .ff-dropdown-arrow { font-size: 9px; color: var(--text-3); margin-left: 2px; }
+
+  /* Divider */
+  .ff-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+
+  /* Toggle */
+  .ff-toggle {
+    width: 34px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--border-hover);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ff-toggle.on { background: var(--purple); }
+  .ff-toggle-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.15s;
+  }
+  .ff-toggle.on .ff-toggle-dot { transform: translateX(16px); }
+
+  /* Password input */
+  .ff-pw-input {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--text-1);
+    background: var(--surface-2);
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    width: 100%;
+    letter-spacing: 0.5px;
+  }
+
+  /* Link preview */
+  .ff-link-preview {
+    flex: 1;
+    height: 34px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    font-size: 11px;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* Highlight zone — marks the new feature area */
+  .ff-highlight {
+    background: var(--purple-bg);
+    border: 1.5px dashed var(--purple-border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 8px 0;
+    position: relative;
+  }
+  .ff-highlight-label {
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    background: var(--purple);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Segmented control */
+  .ff-segmented {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface-2);
+    padding: 2px;
+    gap: 2px;
+  }
+  .ff-seg-option {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 12px;
+    text-align: center;
+    cursor: default;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    font-family: var(--font);
+  }
+  .ff-seg-option.active {
+    background: var(--surface);
+    color: var(--text-1);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  /* Action chips */
+  .ff-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ff-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 11px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-2);
+    cursor: default;
+    font-family: var(--font);
+    background: var(--surface);
+  }
+  .ff-chip.active {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: var(--purple-bg);
+    font-weight: 500;
+  }
+
+  /* Inline section */
+  .ff-inline-section {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 8px 0;
+  }
+
+  /* Settings row */
+  .ff-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+  .ff-setting-row + .ff-setting-row {
+    border-top: 1px solid var(--border);
+  }
+  .ff-setting-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ff-setting-label { font-size: 12px; color: var(--text-1); }
+  .ff-setting-desc { font-size: 10px; color: var(--text-3); }
+
+  /* Info box */
+  .ff-info {
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* Bottom bar */
+  .approach-footer {
+    padding: 20px 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 24px;
+  }
+  .footer-col { flex: 1; }
+  .footer-heading {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+  }
+  .footer-item {
+    font-size: 12px;
+    color: var(--text-2);
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.5;
+  }
+  .footer-item .dot-green { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .footer-item .dot-amber { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+
+  /* Recommendation badge */
+  .rec-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-left: 8px;
+  }
+
+  /* SVG icons inline */
+  .icon { width: 14px; height: 14px; flex-shrink: 0; }
+  .icon-sm { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page-header-inner, .content-area, .approach-nav { padding: 0 16px; }
+    .modal-showcase { padding: 24px 16px; }
+    .approach-header, .approach-footer { padding-left: 20px; padding-right: 20px; }
+    .approach-footer { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="page-title">Password-protected link — Design exploration</div>
+      <div class="page-meta">Fireflies.ai &middot; Share modal &middot; 10 approaches</div>
+    </div>
+    <div class="page-meta">
+      <span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        March 2026
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="approach-nav" id="nav"></div>
+
+<div class="content-area" id="content"></div>
+
+<script>
+const lock = `<svg class="icon" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M6 7V5a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+const shield = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M8 1L2 4v4c0 3.3 2.6 6.4 6 7 3.4-.6 6-3.7 6-7V4L8 1z" stroke="currentColor" stroke-width="1.2"/></svg>`;
+const shieldFill = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M8 1L2 4v4c0 3.3 2.6 6.4 6 7 3.4-.6 6-3.7 6-7V4L8 1z" stroke="#7C3AED" stroke-width="1.2" fill="#7C3AED15"/></svg>`;
+const copy = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M6 12H4a2 2 0 01-2-2V4a2 2 0 012-2h6a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.2"/><rect x="6" y="6" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>`;
+const clock = `<svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+const globe = `<svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M2 8h12M8 2c-2 2-2 10 0 12M8 2c2 2 2 10 0 12" stroke="currentColor" stroke-width="1"/></svg>`;
+const team = `<svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 14c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11.5" cy="5.5" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M11.5 9.5c1.9 0 3.5 1.5 3.5 3.5" stroke="currentColor" stroke-width="1.2"/></svg>`;
+const info = `<svg class="icon-sm" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 7v4M8 5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+const dots = `<svg class="icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="3" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="13" r="1.3" fill="currentColor"/></svg>`;
+const download = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const check = `<svg class="icon-sm" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const refresh = `<svg class="icon-sm" viewBox="0 0 16 16" fill="none"><path d="M2.5 8a5.5 5.5 0 019.3-4M13.5 8a5.5 5.5 0 01-9.3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M12 1v3h-3M4 12v3h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const eye = `<svg class="icon" viewBox="0 0 16 16" fill="none"><path d="M2 8s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>`;
+
+const baseTop = (tabsHtml) => `
+  <div class="ff-modal">
+    <button class="ff-close">&times;</button>
+    <div class="ff-title">Fireflies diarization technology overview</div>
+    <div class="ff-subtitle">Punit Dwivedi &middot; Sun, Mar 22, 10:15 PM</div>
+    ${tabsHtml}`;
+
+const stdTabs = `<div class="ff-tabs"><div class="ff-tab active">Share</div><div class="ff-tab">Embed</div></div>`;
+const inviteRow = `<div class="ff-invite-row"><input class="ff-input" placeholder="Name, email or user group" /><button class="ff-btn-primary">Invite</button></div>`;
+const teammateRow = `<div class="ff-label">Teammates with access</div><div class="ff-teammate"><div class="ff-avatar">PD</div><div class="ff-teammate-info"><div class="ff-teammate-name">Punit Dwivedi</div><div class="ff-teammate-email">punit@fireflies.ai</div></div><span class="ff-role">Host</span></div>`;
+const accessRow = `<div class="ff-access"><div class="ff-access-left">${lock}<div><div class="ff-access-label">Only owner <span class="ff-dropdown-arrow">&#9662;</span></div><div class="ff-access-desc">Only owner and people invited can access</div></div></div><button class="ff-btn-outline">${copy} Copy link</button></div>`;
+const pwField = `<div style="display:flex;gap:8px;"><input class="ff-pw-input" value="xK9mPq2v" style="flex:1;" /><button class="ff-btn-ghost">${refresh} Regenerate</button></div>`;
+const protectedLinkRow = `<div style="display:flex;gap:8px;margin-top:10px;"><div class="ff-link-preview">https://app.fireflies.ai/s/p/abc12...ef</div><button class="ff-btn-primary" style="height:34px;font-size:12px;">Copy</button></div>`;
+
+const approaches = [
+  {
+    label: "Link settings panel",
+    rec: true,
+    desc: "Add a gear/settings icon next to Copy Link. Clicking it reveals a panel with link settings: password toggle, expiration, download control. This is the Dropbox + Loom pattern — the most established industry standard.",
+    ref: "Dropbox, Loom, OneDrive",
+    tags: [["Industry standard","green"],["Extensible","purple"],["Low disruption","green"]],
+    pros: ["Exact pattern from Dropbox/Loom/OneDrive", "Extensible for expiry, download perms", "Doesn't touch existing share flow"],
+    cons: ["Extra click to discover settings", "Small gear target on mobile"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-access" style="border:none;margin:0;padding:8px 0;">
+        <div class="ff-access-left">${lock}<div><div class="ff-access-label">Only owner <span class="ff-dropdown-arrow">&#9662;</span></div><div class="ff-access-desc">Only owner and people invited</div></div></div>
+        <div style="display:flex;gap:4px;">
+          <button class="ff-btn-outline">${copy} Copy link</button>
+          <button class="ff-btn-outline" style="padding:0 8px;width:34px;justify-content:center;">${dots}</button>
+        </div>
+      </div>
+      <div class="ff-highlight">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="font-size:12px;font-weight:500;margin-bottom:12px;padding-top:4px;">Link settings</div>
+        <div class="ff-setting-row" style="border:none;">
+          <div class="ff-setting-left">${shieldFill}<div><div class="ff-setting-label">Require password</div><div class="ff-setting-desc">Viewers must enter password to access</div></div></div>
+          <div class="ff-toggle on"><div class="ff-toggle-dot"></div></div>
+        </div>
+        <div style="padding:0 0 10px 22px;">${pwField}</div>
+        <div class="ff-setting-row">
+          <div class="ff-setting-left">${clock}<div><div class="ff-setting-label">Set expiration</div><div class="ff-setting-desc">Link expires after a set date</div></div></div>
+          <div class="ff-toggle"><div class="ff-toggle-dot"></div></div>
+        </div>
+        <div class="ff-setting-row">
+          <div class="ff-setting-left">${download}<div><div class="ff-setting-label">Allow download</div></div></div>
+          <div class="ff-toggle on"><div class="ff-toggle-dot"></div></div>
+        </div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Dedicated password tab",
+    rec: true,
+    desc: "Add a 'Password' tab alongside Share and Embed. Since the PM says this is a separate link entirely, a dedicated tab gives it proper space — like Vimeo's privacy tab for password-protected videos.",
+    ref: "Vimeo (privacy tab), Wistia",
+    tags: [["Clear separation","green"],["Dedicated space","purple"],["Enterprise-friendly","green"]],
+    pros: ["Clean separation from regular share", "Full space for password + link + info", "Mirrors PM's 'separate link' mental model"],
+    cons: ["Third tab may go unnoticed", "Slight duplication of UI chrome"],
+    render: () => baseTop(`<div class="ff-tabs"><div class="ff-tab">Share</div><div class="ff-tab">Embed</div><div class="ff-tab active">Password<span class="badge-new">NEW</span></div></div>`) + `
+      <div class="ff-highlight" style="border:none;background:transparent;padding:0;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;">${shieldFill}</div>
+          <div><div style="font-size:13px;font-weight:500;">Password-protected sharing</div><div style="font-size:11px;color:var(--text-3);">Share this meeting with anyone — no Fireflies account needed</div></div>
+        </div>
+        <div class="ff-label">Password</div>
+        ${pwField}
+        <div class="ff-label" style="margin-top:14px;">Protected link</div>
+        <div style="display:flex;gap:8px;">
+          <div class="ff-link-preview">https://app.fireflies.ai/s/p/abc12...ef</div>
+          <button class="ff-btn-primary" style="height:34px;font-size:12px;">Copy link</button>
+        </div>
+        <div class="ff-divider" style="margin:16px 0;"></div>
+        <div class="ff-info">${info}<span>This generates a separate link from your regular share link. Send the password through a different channel for security.</span></div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Toggle in access row",
+    rec: true,
+    desc: "Place a password toggle directly below the existing access/permission row. When toggled on, a password field and protected copy button slide in. Minimal change to existing UI.",
+    ref: "Figma (link protection), Google Drive (restricted)",
+    tags: [["Minimal change","green"],["Familiar toggle","green"],["Quick to ship","purple"]],
+    pros: ["Least disruptive to existing modal", "Lives near the access controls", "Ship-fast option"],
+    cons: ["Bottom of modal = lower visibility", "Can feel cramped with existing access row"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-access">
+        <div class="ff-access-left">${lock}<div><div class="ff-access-label">Only owner <span class="ff-dropdown-arrow">&#9662;</span></div><div class="ff-access-desc">Only owner and people invited</div></div></div>
+        <button class="ff-btn-outline">${copy} Copy link</button>
+      </div>
+      <div class="ff-highlight">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:4px;">
+          <div style="display:flex;align-items:center;gap:8px;">${shieldFill}<span style="font-size:12px;font-weight:500;">Password-protected link</span></div>
+          <div class="ff-toggle on"><div class="ff-toggle-dot"></div></div>
+        </div>
+        <div style="margin-top:10px;">${pwField}</div>
+        <div style="margin-top:10px;"><button class="ff-btn-primary" style="width:100%;height:36px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;">${copy} Copy protected link</button></div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Inline expandable section",
+    desc: "An accordion section between teammates and access row. Click to expand. Keeps the modal clean when collapsed, reveals the full flow when needed.",
+    ref: "Notion (share settings), Linear (link options)",
+    tags: [["Progressive disclosure","purple"],["Clean default state","green"]],
+    pros: ["Discoverable but not intrusive", "Modal stays clean when collapsed", "Good progressive disclosure"],
+    cons: ["Extra click to open", "Accordion can feel heavy in a modal"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-highlight">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:default;padding-top:4px;">
+          <div style="display:flex;align-items:center;gap:8px;">${shieldFill}<span style="font-size:13px;font-weight:500;">Password-protected link</span><span style="font-size:9px;background:var(--purple);color:#fff;padding:1px 6px;border-radius:4px;font-weight:600;">NEW</span></div>
+          <span style="font-size:11px;color:var(--purple);transform:rotate(180deg);display:inline-block;">&#9662;</span>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;">Share with anyone — no Fireflies account needed</div>
+          ${pwField}
+          ${protectedLinkRow}
+        </div>
+      </div>
+      ${accessRow}
+    </div>`
+  },
+  {
+    label: "Segmented link types",
+    desc: "Replace the Copy Link area with a segmented control: Standard link vs Protected link. Selecting 'Protected' reveals the password field and a different copy URL. Like WeTransfer's transfer options.",
+    ref: "WeTransfer, pCloud, Proton Drive",
+    tags: [["Clear mental model","green"],["Single entry point","purple"]],
+    pros: ["User explicitly chooses link type", "No clutter when using standard link", "Clean segmented pattern"],
+    cons: ["Restructures the bottom of the modal", "User must understand the two modes"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-access" style="border:none;padding:6px 0;">
+        <div class="ff-access-left">${lock}<div><div class="ff-access-label">Only owner <span class="ff-dropdown-arrow">&#9662;</span></div><div class="ff-access-desc">Only owner and people invited</div></div></div>
+      </div>
+      <div class="ff-highlight">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="padding-top:4px;">
+          <div class="ff-segmented" style="margin-bottom:14px;">
+            <div class="ff-seg-option">Standard link</div>
+            <div class="ff-seg-option active">${shieldFill} Password-protected</div>
+          </div>
+          <div class="ff-label">Set password</div>
+          ${pwField}
+          <div class="ff-label" style="margin-top:12px;">Protected link</div>
+          <div style="display:flex;gap:8px;">
+            <div class="ff-link-preview">https://app.fireflies.ai/s/p/abc12...ef</div>
+            <button class="ff-btn-primary" style="height:34px;font-size:12px;">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Access level dropdown option",
+    desc: "Add 'Anyone with password' as a new option in the existing access dropdown (alongside Only Owner, Team, Public). Selecting it reveals the password configuration.",
+    ref: "Vimeo (privacy dropdown), SharePoint",
+    tags: [["Fits existing model","green"],["No new surfaces","green"]],
+    pros: ["Uses existing access dropdown", "Users already understand this control", "No new UI surfaces needed"],
+    cons: ["Password link is a separate URL, not an access level", "May confuse the dropdown purpose"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-highlight">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="padding-top:4px;">
+          <div class="ff-label">Who can access this meeting</div>
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+            <div style="padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">${lock}<span style="font-size:12px;">Only owner</span><span style="margin-left:auto;">${check}</span></div>
+            <div style="padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">${team}<span style="font-size:12px;">Team members</span></div>
+            <div style="padding:9px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">${globe}<span style="font-size:12px;">Public</span></div>
+            <div style="padding:9px 12px;display:flex;align-items:center;gap:8px;background:var(--purple-bg);">${shieldFill}<div><div style="font-size:12px;color:var(--purple);font-weight:500;">Anyone with password</div><div style="font-size:10px;color:var(--text-3);">No login required</div></div><span style="font-size:9px;background:var(--purple);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:auto;">NEW</span></div>
+          </div>
+        </div>
+      </div>
+      ${accessRow}
+    </div>`
+  },
+  {
+    label: "Two-mode share (segmented)",
+    desc: "Split the Share tab into two sub-modes via a top segmented control: 'Invite teammates' (existing) and 'External share' (password link). This cleanly separates internal vs external sharing.",
+    ref: "Canva (share modes), Google Workspace",
+    tags: [["Cleanest separation","purple"],["Matches PM brief","green"]],
+    pros: ["Cleanly separates internal vs external", "Matches PM's use case framing", "Room for future external features"],
+    cons: ["Biggest restructure of the modal", "Users must understand the split", "Higher dev cost"],
+    render: () => baseTop(stdTabs) + `
+      <div class="ff-highlight" style="border:none;background:transparent;padding:0;">
+        <div class="ff-segmented" style="margin-bottom:18px;">
+          <div class="ff-seg-option">Invite teammates</div>
+          <div class="ff-seg-option active">External share</div>
+        </div>
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">${shieldFill}</div>
+          <div style="font-size:14px;font-weight:500;">Share externally with a password</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">No Fireflies account needed to view</div>
+        </div>
+        <div class="ff-label">Password</div>
+        ${pwField}
+        <div class="ff-label" style="margin-top:14px;">Protected link</div>
+        <div style="display:flex;gap:8px;">
+          <div class="ff-link-preview">https://app.fireflies.ai/s/p/abc12...ef</div>
+          <button class="ff-btn-primary" style="height:34px;font-size:12px;">Copy</button>
+        </div>
+        <div style="margin-top:14px;">${(() => {
+          return `<div class="ff-info">${info}<span>Tip: Send the link and password through separate channels for security.</span></div>`;
+        })()}</div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Separate card below",
+    desc: "Keep the share modal unchanged. Append a visually distinct card below the access row that promotes the password-protected link feature. Always visible, clearly separate.",
+    ref: "Slack (share externally), Zoom (meeting security)",
+    tags: [["Zero disruption","green"],["Always visible","green"]],
+    pros: ["Doesn't touch any existing UI", "Always visible — high discoverability", "Clear visual separation"],
+    cons: ["Makes modal taller", "Can feel bolted on", "Two sharing paradigms in one modal"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + accessRow + `
+      <div class="ff-highlight" style="margin-top:4px;">
+        <div class="ff-highlight-label">New feature area</div>
+        <div style="display:flex;gap:10px;padding-top:4px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${shieldFill}</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span style="font-size:13px;font-weight:500;">Share with password</span><span style="font-size:9px;background:var(--purple);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600;">NEW</span></div>
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;">Share externally without a Fireflies account</div>
+            ${pwField}
+            ${protectedLinkRow}
+          </div>
+        </div>
+      </div>
+    </div>`
+  },
+  {
+    label: "Action chip row",
+    desc: "Add a row of action chips below the invite field: Create group, Password link, Embed. Clicking 'Password link' reveals the flow inline. Groups all sharing actions in one scannable row.",
+    ref: "Linear (quick actions), GitHub (share options)",
+    tags: [["Scannable","green"],["Groups actions","purple"]],
+    pros: ["All sharing actions visible at once", "Highly scannable", "Easy to extend with more actions"],
+    cons: ["Takes horizontal space", "Chip row wraps on mobile", "Competes for attention"],
+    render: () => baseTop(stdTabs) + inviteRow + `
+      <div class="ff-chips" style="margin-bottom:14px;">
+        <div class="ff-chip">${team} Create group</div>
+        <div class="ff-chip active">${shieldFill} Password link <span style="font-size:9px;background:var(--purple);color:#fff;padding:0 4px;border-radius:3px;font-weight:600;">NEW</span></div>
+      </div>
+      <div class="ff-highlight" style="border:none;background:transparent;padding:0;">
+        <div class="ff-inline-section">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${shieldFill}<span style="font-size:13px;font-weight:500;">Password-protected link</span></div>
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;">Anyone with the link + password can view. No login needed.</div>
+          ${pwField}
+          <div style="margin-top:10px;"><button class="ff-btn-primary" style="width:100%;height:36px;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;">${copy} Copy protected link</button></div>
+        </div>
+      </div>
+      ${teammateRow}
+      ${accessRow}
+    </div>`
+  },
+  {
+    label: "Dual copy buttons",
+    desc: "Replace the single Copy Link with two side-by-side buttons: 'Copy link' (standard) and 'Copy with password'. The password button opens a small popover for setting the password before copying.",
+    ref: "Box (share options), WeTransfer",
+    tags: [["One-click flow","purple"],["Highly visible","green"]],
+    pros: ["Both options visible simultaneously", "Direct action at the point of need", "No modal restructure"],
+    cons: ["Two buttons can confuse which to use", "Password setup needs inline popover", "Bottom row gets crowded"],
+    render: () => baseTop(stdTabs) + inviteRow + teammateRow + `
+      <div class="ff-access" style="border:none;padding:6px 0;margin:0;">
+        <div class="ff-access-left">${lock}<div><div class="ff-access-label">Only owner <span class="ff-dropdown-arrow">&#9662;</span></div><div class="ff-access-desc">Only owner and people invited</div></div></div>
+      </div>
+      <div class="ff-highlight" style="border:none;background:transparent;padding:0;">
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="ff-btn-outline" style="flex:1;justify-content:center;height:38px;">${copy} Copy link</button>
+          <button class="ff-btn-primary" style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;gap:6px;">${shield} Copy with password</button>
+        </div>
+        <div class="ff-inline-section" style="margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;"><span style="font-size:11px;color:var(--text-3);">Set password before copying</span></div>
+          <div style="display:flex;gap:8px;"><input class="ff-pw-input" value="xK9mPq2v" style="flex:1;" /><button class="ff-btn-primary" style="height:34px;font-size:12px;">Copy</button></div>
+        </div>
+      </div>
+    </div>`
+  }
+];
+
+const nav = document.getElementById('nav');
+const content = document.getElementById('content');
+let active = 0;
+
+function buildNav() {
+  nav.innerHTML = '';
+  approaches.forEach((a, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-pill' + (i === active ? ' active' : '');
+    btn.innerHTML = `<span class="pill-num">${i+1}</span>${a.label}${a.rec ? ' ★' : ''}`;
+    btn.onclick = () => { active = i; buildNav(); render(); };
+    nav.appendChild(btn);
+  });
+}
+
+function render() {
+  const a = approaches[active];
+  content.innerHTML = `
+    <div class="approach-card" key="${active}">
+      <div class="approach-header">
+        <div class="approach-num">Approach ${active+1} of ${approaches.length}${a.rec ? '<span class="rec-badge">★ Recommended</span>' : ''}</div>
+        <div class="approach-title">${a.label}</div>
+        <div class="approach-desc">${a.desc}</div>
+        <div class="approach-ref"><strong>Reference:</strong> ${a.ref}</div>
+        <div class="tag-row">${a.tags.map(([t,c]) => `<span class="tag tag-${c}">${t}</span>`).join('')}</div>
+      </div>
+      <div class="modal-showcase">${a.render()}</div>
+      <div class="approach-footer">
+        <div class="footer-col">
+          <div class="footer-heading">Strengths</div>
+          ${a.pros.map(p => `<div class="footer-item"><span class="dot-green"></span>${p}</div>`).join('')}
+        </div>
+        <div class="footer-col">
+          <div class="footer-heading">Tradeoffs</div>
+          ${a.cons.map(c => `<div class="footer-item"><span class="dot-amber"></span>${c}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+buildNav();
+render();
+</script>
+
+</body>
+</html>
