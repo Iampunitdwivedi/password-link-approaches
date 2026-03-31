@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password-Protected Sharing — Client Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --green-border: #BBF7D0;
+    --blue: #2563EB;
+    --blue-bg: #EFF6FF;
+    --blue-border: #BFDBFE;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --red: #DC2626;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 18px; height: 18px; color: #fff; }
+  .header-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .header-badge {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: var(--blue-bg);
+    color: #1E40AF;
+    font-weight: 500;
+    border: 1px solid var(--blue-border);
+  }
+
+  .flow-nav {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 32px;
+    display: flex;
+    gap: 6px;
+  }
+  .flow-nav a {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .flow-nav a:hover {
+    border-color: var(--border-hover);
+    color: var(--text-1);
+  }
+  .flow-nav a.active {
+    background: var(--text-1);
+    color: #fff;
+    border-color: var(--text-1);
+  }
+
+  .content {
+    max-width: 900px;
+    margin: 28px auto 60px;
+    padding: 0 32px;
+  }
+
+  .flow-desc {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 28px;
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    position: relative;
+  }
+  .step-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-line {
+    width: 2px;
+    flex: 1;
+    background: var(--border);
+    margin: 4px 0;
+  }
+  .step:last-child .step-line { display: none; }
+
+  .step-purple .step-num { background: var(--purple-bg); color: var(--purple); border: 1.5px solid var(--purple-border); }
+  .step-green .step-num { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green-border); }
+  .step-blue .step-num { background: var(--blue-bg); color: var(--blue); border: 1.5px solid var(--blue-border); }
+  .step-red .step-num { background: #FEF2F2; color: var(--red); border: 1.5px solid #FECACA; }
+  .step-amber .step-num { background: var(--amber-bg); color: var(--amber); border: 1.5px solid #FDE68A; }
+
+  .step-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .step-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+  }
+
+  .step-card-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .step-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-icon svg { width: 18px; height: 18px; }
+  .step-icon-purple { background: var(--purple-bg); color: var(--purple); }
+  .step-icon-green { background: var(--green-bg); color: var(--green); }
+  .step-icon-blue { background: var(--blue-bg); color: var(--blue); }
+  .step-icon-red { background: #FEF2F2; color: var(--red); }
+  .step-icon-amber { background: var(--amber-bg); color: var(--amber); }
+
+  .step-name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .step-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    transition: all 0.15s;
+  }
+  .step-card:hover .step-arrow {
+    color: var(--purple);
+    background: var(--purple-bg);
+  }
+  .step-arrow svg { width: 16px; height: 16px; }
+
+  .connector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0 4px 50px;
+    margin: -8px 0;
+  }
+  .connector-text {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 500;
+    background: var(--bg);
+    padding: 0 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .connector-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .step-preview {
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .preview-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .preview-dot-purple { background: var(--purple); }
+  .preview-dot-green { background: var(--green); }
+  .preview-dot-blue { background: var(--blue); }
+  .preview-dot-red { background: var(--red); }
+  .preview-dot-amber { background: var(--amber); }
+  .preview-text {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* Branch indicator */
+  .branch {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0 4px 50px;
+    margin: -4px 0 4px;
+  }
+  .branch-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+  .branch-tag {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .branch-tag-green { background: var(--green-bg); color: var(--green); }
+  .branch-tag-red { background: #FEF2F2; color: var(--red); }
+  .branch-tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .branch-dash {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    border-style: dashed;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">Password-Protected Sharing</div>
+        <div class="header-subtitle">Approach 2: Dedicated Password Tab</div>
+      </div>
+    </div>
+    <div class="header-badge">Client Flow</div>
+  </div>
+</div>
+
+<div class="flow-nav">
+  <a href="flow-admin.html">Admin Flow</a>
+  <a href="#" class="active">Client Flow</a>
+</div>
+
+<div class="content">
+  <div class="flow-desc">
+    The external recipient's journey — what they see when they open a password-protected link. This is their first touchpoint with Fireflies, so it needs to feel <strong>clean, branded, and trustworthy</strong>.
+  </div>
+
+  <div class="flow-steps">
+
+    <!-- Step 6 -->
+    <div class="step step-purple">
+      <div class="step-timeline">
+        <div class="step-num">06</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="06-recipient-password-page.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Password Entry Page</div>
+              <div class="step-sub">First thing the recipient sees — branded, trustworthy</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-purple"></span>
+          <span class="preview-text">Fireflies logo, lock icon, meeting name & host, password field, "Access meeting" CTA</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">Enters password and clicks "Access meeting"</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Branch -->
+    <div class="branch">
+      <div class="branch-line">
+        <span class="branch-tag branch-tag-red">Wrong</span>
+        <span class="branch-dash"></span>
+      </div>
+      <div class="branch-line">
+        <span class="branch-dash"></span>
+        <span class="branch-tag branch-tag-green">Correct</span>
+      </div>
+    </div>
+
+    <!-- Step 7 — Wrong password -->
+    <div class="step step-red">
+      <div class="step-timeline">
+        <div class="step-num">07</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="07-recipient-wrong-password.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Wrong Password</div>
+              <div class="step-sub">Error state — red border, shake animation, inline error</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-red"></span>
+          <span class="preview-text">"Incorrect password. Please try again." — no attempt counter in v1</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">Enters correct password</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 8 — Meeting view -->
+    <div class="step step-green">
+      <div class="step-timeline">
+        <div class="step-num">08</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="08-recipient-meeting-view.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Meeting View</div>
+              <div class="step-sub">Read-only transcript & summary — simplified for external users</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-green"></span>
+          <span class="preview-text">Info banner, read-only badge, Transcript & Summary tabs, audio player — no AskFred or AI Skills</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">If admin revokes the link later</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 9 — Revoked -->
+    <div class="step step-amber">
+      <div class="step-timeline">
+        <div class="step-num">09</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="09-recipient-revoked-link.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 7h3a5 5 0 0 1 0 10h-3"/>
+                <path d="M9 17H6a5 5 0 0 1 0-10h3"/>
+                <line x1="8" y1="12" x2="10" y2="12"/>
+                <line x1="14" y1="12" x2="16" y2="12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Revoked Link</div>
+              <div class="step-sub">What they see if the link has been deleted</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-amber"></span>
+          <span class="preview-text">Broken link icon, "This link is no longer active", soft upsell to sign up for Fireflies</span>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

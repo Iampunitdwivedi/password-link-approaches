@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password-Protected Sharing — Admin Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFEC;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9B9B9B;
+    --border: #E5E4E1;
+    --border-hover: #D0CFCC;
+    --purple: #7C3AED;
+    --purple-bg: #F5F0FF;
+    --purple-border: #E0D4FC;
+    --purple-text: #5B21B6;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --green-border: #BBF7D0;
+    --amber: #D97706;
+    --amber-bg: #FFFBEB;
+    --red: #DC2626;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 18px; height: 18px; color: #fff; }
+  .header-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .header-badge {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: var(--purple-bg);
+    color: var(--purple-text);
+    font-weight: 500;
+    border: 1px solid var(--purple-border);
+  }
+
+  /* Flow nav */
+  .flow-nav {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 32px;
+    display: flex;
+    gap: 6px;
+  }
+  .flow-nav a {
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .flow-nav a:hover {
+    border-color: var(--border-hover);
+    color: var(--text-1);
+  }
+  .flow-nav a.active {
+    background: var(--text-1);
+    color: #fff;
+    border-color: var(--text-1);
+  }
+
+  /* Content */
+  .content {
+    max-width: 900px;
+    margin: 28px auto 60px;
+    padding: 0 32px;
+  }
+
+  /* Flow description */
+  .flow-desc {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 28px;
+  }
+
+  /* Flow steps */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Step */
+  .step {
+    display: flex;
+    gap: 20px;
+    position: relative;
+  }
+
+  /* Timeline */
+  .step-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-line {
+    width: 2px;
+    flex: 1;
+    background: var(--border);
+    margin: 4px 0;
+  }
+  .step:last-child .step-line { display: none; }
+
+  /* Step colors */
+  .step-purple .step-num { background: var(--purple-bg); color: var(--purple); border: 1.5px solid var(--purple-border); }
+  .step-green .step-num { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green-border); }
+  .step-amber .step-num { background: var(--amber-bg); color: var(--amber); border: 1.5px solid #FDE68A; }
+  .step-red .step-num { background: #FEF2F2; color: var(--red); border: 1.5px solid #FECACA; }
+
+  /* Card */
+  .step-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .step-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+  }
+
+  .step-card-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .step-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-icon svg { width: 18px; height: 18px; }
+  .step-icon-purple { background: var(--purple-bg); color: var(--purple); }
+  .step-icon-green { background: var(--green-bg); color: var(--green); }
+  .step-icon-amber { background: var(--amber-bg); color: var(--amber); }
+  .step-icon-red { background: #FEF2F2; color: var(--red); }
+
+  .step-name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .step-sub {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .step-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    transition: all 0.15s;
+  }
+  .step-card:hover .step-arrow {
+    color: var(--purple);
+    background: var(--purple-bg);
+  }
+  .step-arrow svg { width: 16px; height: 16px; }
+
+  /* Connector label */
+  .connector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0 4px 50px;
+    margin: -8px 0;
+  }
+  .connector-text {
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 500;
+    background: var(--bg);
+    padding: 0 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .connector-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Preview thumbnail */
+  .step-preview {
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .preview-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .preview-dot-purple { background: var(--purple); }
+  .preview-dot-green { background: var(--green); }
+  .preview-dot-amber { background: var(--amber); }
+  .preview-dot-red { background: var(--red); }
+  .preview-text {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">Password-Protected Sharing</div>
+        <div class="header-subtitle">Approach 2: Dedicated Password Tab</div>
+      </div>
+    </div>
+    <div class="header-badge">Admin Flow</div>
+  </div>
+</div>
+
+<!-- Flow nav -->
+<div class="flow-nav">
+  <a href="#" class="active">Admin Flow</a>
+  <a href="flow-client.html">Client Flow</a>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="flow-desc">
+    The meeting owner's journey — from enabling password protection, managing the link, to revoking access. All actions happen inside the Share modal's <strong>Password</strong> tab.
+  </div>
+
+  <div class="flow-steps">
+
+    <!-- Step 1 -->
+    <div class="step step-purple">
+      <div class="step-timeline">
+        <div class="step-num">01</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="01-password-tab-empty.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Empty State</div>
+              <div class="step-sub">Password tab — first visit, no password yet</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-purple"></span>
+          <span class="preview-text">Shield icon, "Password-protected sharing" headline, "Create password" CTA</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">Clicks "Create password"</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step step-purple">
+      <div class="step-timeline">
+        <div class="step-num">02</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="02-password-tab-create.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Create Password</div>
+              <div class="step-sub">Password input with live validation checklist</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-purple"></span>
+          <span class="preview-text">Password field, 8+ chars & letter+number checks, "Create password & generate link" button</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">Password meets requirements, clicks create</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step step-green">
+      <div class="step-timeline">
+        <div class="step-num">03</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="03-password-tab-active.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Active State</div>
+              <div class="step-sub">Password set, protected link is live</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-green"></span>
+          <span class="preview-text">Green "Active" banner, show/copy password, copy protected link, danger zone to delete</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">Clicks "Delete password & revoke link"</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step step-red">
+      <div class="step-timeline">
+        <div class="step-num">04</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="04-delete-confirmation.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Delete Confirmation</div>
+              <div class="step-sub">Destructive action confirmation dialog</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-red"></span>
+          <span class="preview-text">Warning icon, revoked link preview with strikethrough, "Delete and revoke" red CTA</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="connector">
+      <span class="connector-text">After each action completes</span>
+      <span class="connector-line"></span>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step step-amber">
+      <div class="step-timeline">
+        <div class="step-num">05</div>
+        <div class="step-line"></div>
+      </div>
+      <a class="step-card" href="05-success-states.html">
+        <div class="step-card-header">
+          <div class="step-card-left">
+            <div class="step-icon step-icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </div>
+            <div>
+              <div class="step-name">Toast Notifications</div>
+              <div class="step-sub">Success, copied, and revoked toasts</div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-preview">
+          <span class="preview-dot preview-dot-amber"></span>
+          <span class="preview-text">Three toast variants: password created (green), link copied (purple), password deleted (amber)</span>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
