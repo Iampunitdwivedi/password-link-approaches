@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fred Loading States — Fireflies Design Reference</title>
+<meta name="description" content="Loading state explorations for Fred AI chat sidebar — Fireflies.ai">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090B;
+    --surface: #131316;
+    --surface-2: #1A1A1F;
+    --border: #25252D;
+    --border-2: #2F2F3A;
+    --text: #E4E4E9;
+    --text-2: #9898A6;
+    --text-dim: #5C5C69;
+    --accent: #A78BFA;
+    --accent-soft: rgba(167,139,250,0.10);
+    --accent-border: rgba(167,139,250,0.22);
+    --green: #34D399;
+    --green-soft: rgba(52,211,153,0.10);
+    --green-border: rgba(52,211,153,0.22);
+    --amber: #FBBF24;
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding: 64px 24px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(167,139,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .hero-badge-dot {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--text-2);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ---- Section ---- */
+  .section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .section-desc {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ---- Grid ---- */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Chat Frame ---- */
+  .chat-frame {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .chat-frame:hover { border-color: var(--border-2); }
+
+  .chat-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chat-avatar {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .chat-name {
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .chat-tag {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .chat-body {
+    padding: 18px 16px;
+    min-height: 100px;
+  }
+
+  .replay-btn {
+    display: block;
+    margin: 6px 16px 14px;
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: var(--sans);
+    font-size: 10.5px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .replay-btn:hover { background: var(--accent-soft); }
+
+  /* ---- Bubble ---- */
+  .ai-bubble {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 14px 15px;
+  }
+
+  /* =============================================
+     STEPPER STYLES (Section 1)
+     ============================================= */
+
+  /* S1 — Vertical Stepper */
+  .s1-steps { display: flex; flex-direction: column; }
+  .s1-step { display: flex; gap: 10px; padding-bottom: 14px; }
+  .s1-step:last-child { padding-bottom: 0; }
+  .s1-rail { display: flex; flex-direction: column; align-items: center; width: 18px; flex-shrink: 0; }
+  .s1-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; flex-shrink: 0; z-index: 1;
+  }
+  .s1-dot.done { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-border); }
+  .s1-dot.active { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); animation: s1p 2s ease-in-out infinite; }
+  .s1-dot.pending { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); font-size: 8px; }
+  @keyframes s1p { 0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,0.25)}50%{box-shadow:0 0 0 5px rgba(167,139,250,0)} }
+  .s1-line { width: 1px; flex: 1; min-height: 8px; margin-top: 3px; }
+  .s1-line.done { background: rgba(52,211,153,0.2); }
+  .s1-line.active { background: linear-gradient(to bottom, rgba(167,139,250,0.3), transparent); }
+  .s1-line.pending { background: var(--border); }
+  .s1-body { padding-top: 1px; flex: 1; }
+  .s1-title { font-size: 12.5px; font-weight: 500; line-height: 1.35; }
+  .s1-step.is-pending .s1-title { color: var(--text-dim); }
+  .s1-meta { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
+  .s1-meta.ok { color: var(--green); }
+
+  /* S2 — Collapsed */
+  .s2-wrap { cursor: pointer; user-select: none; }
+  .s2-top { display: flex; align-items: center; gap: 9px; }
+  .s2-orbit { width: 16px; height: 16px; position: relative; flex-shrink: 0; }
+  .s2-orbit::before { content:''; position:absolute; inset:0; border:1.5px solid transparent; border-top-color:var(--accent); border-radius:50%; animation:sp 1s linear infinite; }
+  .s2-orbit-dot { position:absolute; inset:3.5px; background:var(--accent); border-radius:50%; opacity:0.5; animation:s2b 2s ease-in-out infinite; }
+  @keyframes s2b { 0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:0.7;transform:scale(1)} }
+  .s2-label { font-size: 12.5px; font-weight: 500; flex: 1; }
+  .s2-chev { font-size: 9px; color: var(--text-dim); transition: transform 0.25s; }
+  .s2-wrap.open .s2-chev { transform: rotate(180deg); }
+  .s2-detail { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, margin 0.35s ease; margin-top: 0; }
+  .s2-wrap.open .s2-detail { max-height: 200px; margin-top: 12px; }
+  .s2-inner { padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; }
+  .s2-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+  .s2-ico { width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; }
+  .s2-ico.done { background: var(--green-soft); color: var(--green); }
+  .s2-ico.active { background: var(--accent-soft); color: var(--accent); }
+  .s2-ico.pending { border: 1px solid var(--border); color: transparent; }
+  .s2-row.is-pending span { color: var(--text-dim); }
+  .s2-count { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--green); background: var(--green-soft); padding: 1px 6px; border-radius: 10px; }
+
+  /* S3 — Progress Bar */
+  .s3-progress { height: 2px; background: rgba(255,255,255,0.04); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+  .s3-fill { height: 100%; width: 62%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 2px; position: relative; }
+  .s3-fill::after { content:''; position:absolute; right:0; top:-2px; bottom:-2px; width:14px; background:var(--accent); filter:blur(5px); opacity:0.5; }
+  .s3-items { display: flex; flex-direction: column; gap: 6px; }
+  .s3-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .s3-item-ico { width: 14px; text-align: center; flex-shrink: 0; font-size: 10px; }
+  .s3-item-ico.done { color: var(--green); }
+  .s3-item-ico.active { color: var(--accent); }
+  .s3-item-ico.pending { color: var(--text-dim); }
+  .s3-item.is-done .s3-item-text { color: var(--text-2); }
+  .s3-item.is-active .s3-item-text { color: var(--text); font-weight: 500; }
+  .s3-item.is-pending .s3-item-text { color: var(--text-dim); }
+  .s3-time { font-family: var(--mono); font-size: 9.5px; color: var(--text-dim); flex-shrink: 0; }
+
+  /* S4 — Terminal */
+  .s4-term { background: #0B0B0E; border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 11px; line-height: 1.7; overflow: hidden; }
+  .s4-bar { background: var(--surface-2); padding: 5px 10px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--border); }
+  .s4-d { width: 6px; height: 6px; border-radius: 50%; }
+  .s4-d:nth-child(1) { background: #FF5F57; }
+  .s4-d:nth-child(2) { background: #FEBC2E; }
+  .s4-d:nth-child(3) { background: #28C840; }
+  .s4-bar-t { margin-left: 6px; font-size: 9.5px; color: var(--text-dim); }
+  .s4-body { padding: 10px 12px; }
+  .s4-g { color: var(--green); }
+  .s4-d2 { color: var(--text-dim); }
+  .s4-a { color: var(--accent); }
+  .s4-w { color: var(--amber); }
+  .s4-tag { background: var(--green); color: var(--bg); padding: 0 4px; border-radius: 2px; font-weight: 500; font-size: 10px; }
+  .s4-cursor { display: inline-block; width: 6px; height: 12px; background: var(--accent); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 1px; }
+
+  /* S5 — Pills */
+  .s5-pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .s5-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+  .s5-pill.done { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-border); }
+  .s5-pill.active { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); animation: s5g 2s ease-in-out infinite; }
+  .s5-pill.pending { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); }
+  @keyframes s5g { 0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,0.12)}50%{box-shadow:0 0 8px 1px rgba(167,139,250,0.08)} }
+  .s5-arr { color: var(--text-dim); font-size: 9px; }
+
+  /* S6 — Card Stack */
+  .s6-stack { display: flex; flex-direction: column; gap: 6px; }
+  .s6-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; }
+  .s6-card.done { border-color: var(--green-border); }
+  .s6-card.active { border-color: var(--accent-border); }
+  .s6-ico { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .s6-card.done .s6-ico { background: var(--green-soft); }
+  .s6-card.active .s6-ico { background: var(--accent-soft); }
+  .s6-card.pending .s6-ico { background: rgba(255,255,255,0.03); opacity: 0.5; }
+  .s6-info { flex: 1; min-width: 0; }
+  .s6-t { font-size: 12px; font-weight: 500; }
+  .s6-card.pending .s6-t { color: var(--text-dim); }
+  .s6-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .s6-badge { font-family: var(--mono); font-size: 9.5px; padding: 2px 7px; border-radius: 5px; font-weight: 500; flex-shrink: 0; }
+  .s6-badge.done { background: var(--green-soft); color: var(--green); }
+  .s6-badge.active { background: var(--accent-soft); color: var(--accent); }
+  .s6-badge.pending { background: rgba(255,255,255,0.03); color: var(--text-dim); }
+
+  /* =============================================
+     TEXT LOADER STYLES (Section 2)
+     ============================================= */
+  .line { font-size: 13px; line-height: 1.65; color: var(--text-2); animation: fadeUp 0.3s ease both; }
+  .line.active { color: var(--text); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)} }
+  .check { color: var(--green); margin-right: 3px; }
+  .dim { color: var(--text-dim); }
+  .num { color: var(--accent); font-weight: 500; }
+  .sub { display: block; font-size: 11.5px; color: var(--text-dim); margin-top: 1px; padding-left: 18px; }
+
+  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--accent); margin-left: 3px; vertical-align: text-bottom; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50%{opacity:0} }
+  .sdot { display: inline-block; width: 8px; height: 8px; border: 1.5px solid rgba(167,139,250,0.15); border-top-color: var(--accent); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: middle; margin-right: 5px; }
+  @keyframes sp { to{transform:rotate(360deg)} }
+  .spin { display: inline-block; border: 1.5px solid rgba(167,139,250,0.15); border-top-color: var(--accent); border-radius: 50%; animation: sp .7s linear infinite; }
+  .pdots { display: inline-flex; gap: 3px; margin-left: 3px; vertical-align: middle; }
+  .pdots span { width: 3.5px; height: 3.5px; background: var(--text-2); border-radius: 50%; animation: pdot 1.4s ease-in-out infinite; }
+  .pdots span:nth-child(2) { animation-delay: 0.15s; }
+  .pdots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes pdot { 0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)} }
+  .shimmer { background: linear-gradient(90deg, var(--text-2) 0%, var(--text) 40%, var(--text-2) 80%); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 2s ease-in-out infinite; }
+  @keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+
+  /* ---- Footer ---- */
+  .footer {
+    text-align: center;
+    padding: 48px 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+  .footer p { font-size: 12px; color: var(--text-dim); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ======== HERO ======== -->
+<div class="hero">
+  <div class="hero-badge"><span class="hero-badge-dot"></span> Design Reference</div>
+  <h1>Fred Loading States</h1>
+  <p>Exploring loading patterns for the AI chat sidebar. Steppers, text loaders, and animation styles — all in context.</p>
+</div>
+
+
+<!-- ======== SECTION 1: STEPPERS ======== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <span class="section-title">UI Steppers</span>
+    <span class="section-desc">Structured progress indicators inside chat bubbles</span>
+  </div>
+
+  <div class="grid-3">
+
+    <!-- V1 — Vertical Stepper -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Vertical Stepper</div>
+      </div>
+      <div class="chat-body">
+        <div class="ai-bubble">
+          <div class="s1-steps">
+            <div class="s1-step"><div class="s1-rail"><div class="s1-dot done">&#10003;</div><div class="s1-line done"></div></div><div class="s1-body"><div class="s1-title">Searching your meetings</div><div class="s1-meta">Connected to workspace</div></div></div>
+            <div class="s1-step"><div class="s1-rail"><div class="s1-dot done">&#10003;</div><div class="s1-line done"></div></div><div class="s1-body"><div class="s1-title">24 meetings found</div><div class="s1-meta ok">Mar 1 &#8211; Mar 25</div></div></div>
+            <div class="s1-step"><div class="s1-rail"><div class="s1-dot active"><span class="spin" style="width:8px;height:8px;border-width:1px;margin:0"></span></div><div class="s1-line active"></div></div><div class="s1-body"><div class="s1-title">Extracting meeting insights</div><div class="s1-meta"><span class="spin" style="width:8px;height:8px;border-width:1px;margin:0;margin-right:4px"></span>Analyzing transcripts&#8230;</div></div></div>
+            <div class="s1-step is-pending"><div class="s1-rail"><div class="s1-dot pending">4</div></div><div class="s1-body"><div class="s1-title">Generating summary</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2 — Collapsed -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Collapsed Inline</div>
+      </div>
+      <div class="chat-body">
+        <div class="ai-bubble">
+          <div class="s2-wrap open" onclick="this.classList.toggle('open')">
+            <div class="s2-top">
+              <div class="s2-orbit"><div class="s2-orbit-dot"></div></div>
+              <div class="s2-label">Searching 24 meetings&#8230;</div>
+              <div class="s2-chev">&#9660;</div>
+            </div>
+            <div class="s2-detail">
+              <div class="s2-inner">
+                <div class="s2-row"><div class="s2-ico done">&#10003;</div><span>Connected to workspace</span></div>
+                <div class="s2-row"><div class="s2-ico done">&#10003;</div><span>Meetings found</span><span class="s2-count">24</span></div>
+                <div class="s2-row"><div class="s2-ico active"><span class="spin" style="width:7px;height:7px;border-width:1px;margin:0"></span></div><span>Extracting insights</span></div>
+                <div class="s2-row is-pending"><div class="s2-ico pending"></div><span>Preparing summary</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3 — Progress Bar -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Progress Bar</div>
+      </div>
+      <div class="chat-body">
+        <div class="ai-bubble">
+          <div class="s3-progress"><div class="s3-fill"></div></div>
+          <div class="s3-items">
+            <div class="s3-item is-done"><div class="s3-item-ico done">&#10003;</div><span class="s3-item-text">Workspace connected</span><span class="s3-time">0.4s</span></div>
+            <div class="s3-item is-done"><div class="s3-item-ico done">&#10003;</div><span class="s3-item-text">24 meetings found</span><span class="s3-time">1.2s</span></div>
+            <div class="s3-item is-active"><div class="s3-item-ico active">&#9673;</div><span class="s3-item-text">Extracting insights<span class="pdots"><span></span><span></span><span></span></span></span></div>
+            <div class="s3-item is-pending"><div class="s3-item-ico pending">&#9675;</div><span class="s3-item-text">Generate summary</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4 — Terminal -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Terminal Log</div>
+      </div>
+      <div class="chat-body">
+        <div class="s4-term">
+          <div class="s4-bar"><div class="s4-d"></div><div class="s4-d"></div><div class="s4-d"></div><span class="s4-bar-t">fred &#8212; search</span></div>
+          <div class="s4-body">
+            <div><span class="s4-g">$</span> <span class="s4-d2">search</span> --range <span class="s4-a">30d</span></div>
+            <div><span class="s4-d2">&nbsp;&nbsp;&#8627;</span> <span class="s4-g">&#10003;</span> Connected</div>
+            <div><span class="s4-d2">&nbsp;&nbsp;&#8627;</span> Found <span class="s4-tag">24</span> meetings</div>
+            <div><span class="s4-g">$</span> <span class="s4-d2">extract</span> --insights</div>
+            <div><span class="s4-d2">&nbsp;&nbsp;&#8627;</span> <span class="s4-w">&#10227;</span> <span class="s4-d2">Processing&#8230; 12/24</span><span class="s4-cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V5 — Pills -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Pill Chain</div>
+      </div>
+      <div class="chat-body">
+        <div class="ai-bubble">
+          <div class="s5-pills">
+            <div class="s5-pill done">&#10003; Searching</div>
+            <span class="s5-arr">&rarr;</span>
+            <div class="s5-pill done">&#10003; 24 found</div>
+            <span class="s5-arr">&rarr;</span>
+            <div class="s5-pill active"><span class="spin" style="width:8px;height:8px;border-width:1px;margin:0"></span> Insights</div>
+            <span class="s5-arr" style="opacity:0.3">&rarr;</span>
+            <div class="s5-pill pending">Summary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V6 — Card Stack -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Card Stack</div>
+      </div>
+      <div class="chat-body">
+        <div class="ai-bubble">
+          <div class="s6-stack">
+            <div class="s6-card done"><div class="s6-ico">&#128279;</div><div class="s6-info"><div class="s6-t">Workspace connected</div></div><div class="s6-badge done">&#10003;</div></div>
+            <div class="s6-card done"><div class="s6-ico">&#128197;</div><div class="s6-info"><div class="s6-t">Meetings found</div><div class="s6-sub">Mar 1 &#8211; Mar 25</div></div><div class="s6-badge done">24</div></div>
+            <div class="s6-card active"><div class="s6-ico"><span class="spin" style="width:12px;height:12px;border-width:1.5px;margin:0"></span></div><div class="s6-info"><div class="s6-t">Extracting insights</div><div class="s6-sub">Action items, topics&#8230;</div></div><div class="s6-badge active">12/24</div></div>
+            <div class="s6-card pending"><div class="s6-ico" style="opacity:0.4">&#128202;</div><div class="s6-info"><div class="s6-t">Summary</div></div><div class="s6-badge pending">queued</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======== SECTION 2: TEXT LOADERS ======== -->
+<div class="section">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <span class="section-title">Text Loaders</span>
+    <span class="section-desc">Streaming text patterns &#8212; ChatGPT, Claude, Notion, Perplexity, Minimal</span>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- T1 — ChatGPT -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">ChatGPT style</div>
+      </div>
+      <div class="chat-body" id="t1"></div>
+      <button class="replay-btn" onclick="runT1()">&#8635; Replay</button>
+    </div>
+
+    <!-- T2 — Claude -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Claude style</div>
+      </div>
+      <div class="chat-body" id="t2"></div>
+      <button class="replay-btn" onclick="runT2()">&#8635; Replay</button>
+    </div>
+
+    <!-- T3 — Notion -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Notion style</div>
+      </div>
+      <div class="chat-body" id="t3"></div>
+      <button class="replay-btn" onclick="runT3()">&#8635; Replay</button>
+    </div>
+
+    <!-- T4 — Perplexity -->
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-avatar">F</div>
+        <div class="chat-name">Fred</div>
+        <div class="chat-tag">Perplexity style</div>
+      </div>
+      <div class="chat-body" id="t4"></div>
+      <button class="replay-btn" onclick="runT4()">&#8635; Replay</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ======== FOOTER ======== -->
+<div class="footer">
+  <p>Fireflies Design &#183; Fred Loading States &#183; April 2026</p>
+</div>
+
+
+<script>
+  function wait(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+  function addLine(container, html, cls) {
+    var div = document.createElement('div');
+    div.className = 'line ' + (cls || '');
+    div.innerHTML = html;
+    container.appendChild(div);
+    return div;
+  }
+
+  function typeText(el, text, speed) {
+    speed = speed || 20;
+    return new Promise(function(resolve) {
+      var i = 0;
+      var t = setInterval(function() {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) { clearInterval(t); resolve(); }
+      }, speed);
+    });
+  }
+
+  function makeDots() {
+    return '<span class="pdots"><span></span><span></span><span></span></span>';
+  }
+  function makeSpinner() {
+    return '<span class="sdot"></span>';
+  }
+  function makeCursor() {
+    return '<span class="cursor"></span>';
+  }
+
+  // ---- T1: ChatGPT ----
+  async function runT1() {
+    var el = document.getElementById('t1');
+    el.innerHTML = '';
+    var steps = [
+      { active: 'Connecting to your Fireflies workspace', done: 'Connected to workspace' },
+      { active: 'Searching for meetings in the last 30 days', done: 'Searching for meetings in the last 30 days' },
+      { active: 'Fetching meeting metadata and participants', done: 'Found <span class="num">24</span> meetings with <span class="num">47</span> unique participants' },
+      { active: 'Loading transcripts for matching meetings', done: 'Loaded <span class="num">24</span> transcripts <span class="dim">&#183; 18.4 hrs of audio</span>' },
+      { active: 'Identifying key topics and discussion themes', done: 'Identified <span class="num">12</span> recurring topics across meetings' },
+      { active: 'Extracting action items and decisions', done: 'Extracted <span class="num">38</span> action items and <span class="num">15</span> decisions' },
+      { active: 'Analyzing sentiment and speaker engagement', done: 'Sentiment analysis complete <span class="dim">&#183; avg. positive 72%</span>' },
+      { active: 'Compiling insights into a summary report', done: null, last: true },
+    ];
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      var line = addLine(el, makeSpinner() + s.active + makeCursor(), 'active');
+      if (s.last) return;
+      await wait(1000 + Math.random() * 800);
+      line.className = 'line';
+      line.innerHTML = '<span class="check">&#10003;</span> ' + s.done;
+    }
+  }
+
+  // ---- T2: Claude ----
+  async function runT2() {
+    var el = document.getElementById('t2');
+    el.innerHTML = '';
+    var doneBox = document.createElement('div');
+    el.appendChild(doneBox);
+    var activeLine = document.createElement('div');
+    activeLine.className = 'line active';
+    el.appendChild(activeLine);
+    var steps = [
+      { type: 'Connecting to your Fireflies workspace\u2026', done: 'Connected to workspace' },
+      { type: 'Searching meetings from the last 30 days\u2026', done: 'Found 24 meetings' },
+      { type: 'Loading transcripts and participant data\u2026', done: '24 transcripts loaded \u00b7 18.4 hrs' },
+      { type: 'Reading through each meeting transcript\u2026', done: 'Transcripts reviewed' },
+      { type: 'Pulling out key topics discussed across meetings\u2026', done: '12 recurring topics identified' },
+      { type: 'Extracting action items, owners, and deadlines\u2026', done: '38 action items, 15 decisions' },
+      { type: 'Analyzing how engaged each speaker was\u2026', done: 'Speaker analysis complete' },
+      { type: 'Putting together your summary report\u2026', done: null, last: true },
+    ];
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      activeLine.innerHTML = '';
+      var textSpan = document.createElement('span');
+      var cursorSpan = document.createElement('span');
+      cursorSpan.className = 'cursor';
+      activeLine.appendChild(textSpan);
+      activeLine.appendChild(cursorSpan);
+      await typeText(textSpan, s.type, 22);
+      if (s.last) return;
+      await wait(700);
+      var doneLine = document.createElement('div');
+      doneLine.className = 'line';
+      doneLine.innerHTML = '<span class="check">&#10003;</span> <span class="dim">' + s.done + '</span>';
+      doneBox.appendChild(doneLine);
+    }
+  }
+
+  // ---- T3: Notion ----
+  async function runT3() {
+    var el = document.getElementById('t3');
+    el.innerHTML = '';
+    var doneBox = document.createElement('div');
+    el.appendChild(doneBox);
+    var activeLine = document.createElement('div');
+    activeLine.className = 'line active';
+    el.appendChild(activeLine);
+    var steps = [
+      { shimmer: 'Connecting to Fireflies workspace\u2026', done: 'Connected to workspace' },
+      { shimmer: 'Searching meetings from the last 30 days\u2026', done: '24 meetings found' },
+      { shimmer: 'Loading full transcripts for each meeting\u2026', done: '24 transcripts loaded' },
+      { shimmer: 'Reading 18.4 hours of meeting audio\u2026', done: 'All transcripts read' },
+      { shimmer: 'Identifying recurring topics and themes\u2026', done: '12 recurring topics' },
+      { shimmer: 'Extracting action items and who owns them\u2026', done: '38 action items extracted' },
+      { shimmer: 'Pulling out key decisions made in meetings\u2026', done: '15 decisions identified' },
+      { shimmer: 'Running sentiment analysis on conversations\u2026', done: 'Sentiment: 72% positive avg.' },
+      { shimmer: 'Measuring speaker talk-time and engagement\u2026', done: 'Speaker analysis done' },
+      { shimmer: 'Compiling everything into a summary\u2026', done: null, last: true },
+    ];
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      activeLine.innerHTML = '<span class="shimmer">' + s.shimmer + '</span>';
+      if (s.last) return;
+      await wait(1200 + Math.random() * 500);
+      var doneLine = document.createElement('div');
+      doneLine.className = 'line';
+      doneLine.innerHTML = '<span class="check">&#10003;</span> <span class="dim">' + s.done + '</span>';
+      doneBox.appendChild(doneLine);
+    }
+  }
+
+  // ---- T4: Perplexity ----
+  async function runT4() {
+    var el = document.getElementById('t4');
+    el.innerHTML = '';
+    var steps = [
+      { icon: '\uD83D\uDD17', text: 'Connecting to your Fireflies workspace', sub: null },
+      { icon: '\uD83D\uDD0D', text: 'Searching meetings from the last 30 days', sub: null },
+      { icon: '\uD83D\uDCCB', text: 'Found <span class="num">24</span> meetings with <span class="num">47</span> participants', sub: 'Mar 1 \u2013 Mar 25, 2026 \u00b7 Product, Engineering, Design' },
+      { icon: '\uD83D\uDCDD', text: 'Loading <span class="num">24</span> transcripts', sub: '18.4 hrs of recorded audio \u00b7 avg. 46 min per meeting' },
+      { icon: '\uD83C\uDFF7\uFE0F', text: 'Identified <span class="num">12</span> recurring topics', sub: 'Dark mode, Notebook V2, pricing, onboarding, Q2 planning\u2026' },
+      { icon: '\u2705', text: 'Extracted <span class="num">38</span> action items across teams', sub: '14 assigned to Design \u00b7 11 to Engineering \u00b7 8 to Product' },
+      { icon: '\uD83E\uDD1D', text: 'Found <span class="num">15</span> key decisions', sub: 'Ship dark mode by Apr 4 \u00b7 Delay Notebook V2 to Apr 18\u2026' },
+      { icon: '\uD83D\uDCCA', text: 'Analyzed speaker engagement and sentiment', sub: 'Avg. sentiment 72% positive \u00b7 Top speaker: Punit (4.2 hrs)' },
+      { icon: '\u270D\uFE0F', text: 'Compiling final summary report', sub: null, last: true },
+    ];
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      var isLast = s.last;
+      var lineHtml = '<span style="margin-right:6px">' + s.icon + '</span>' + s.text + (isLast ? makeDots() : '');
+      var line = addLine(el, lineHtml, isLast ? 'active' : '');
+      if (s.sub) {
+        var subEl = document.createElement('span');
+        subEl.className = 'sub';
+        subEl.innerHTML = s.sub;
+        line.appendChild(subEl);
+      }
+      if (isLast) return;
+      await wait(900 + Math.random() * 600);
+    }
+  }
+
+  // Run all on load
+  runT1(); runT2(); runT3(); runT4();
+</script>
+
+</body>
+</html>
